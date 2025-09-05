@@ -71,19 +71,29 @@
           const supabaseUrl = "https://kviqjumgvdregxqdzpka.supabase.co";
           const supabaseKey =
             "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2aXFqdW1ndmRyZWd4cWR6cGthIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNDc1NDQsImV4cCI6MjA3MjYyMzU0NH0.WXw4cgioSHtz577jcagAGIVa-9Uc6tgPWDKQEvyF2Xs";
-          const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+          const supabaseClient = supabase.createClient(
+            supabaseUrl,
+            supabaseKey
+          );
 
           document
             .querySelector("form")
             .addEventListener("submit", async function (e) {
               e.preventDefault();
               const form = e.target;
-              const resident_name = form.fullname.value;
-              const contact_info = form.contact.value;
-              const document_type = form.document.value;
-              const purpose = form.purpose.value;
+              const resident_name = form.fullname.value.trim();
+              const contact_info = form.contact.value.trim();
+              const document_type = form.document.value.trim();
+              const purpose = form.purpose.value.trim();
               const status = "Pending";
               const request_date = new Date().toISOString();
+
+              // Basic validation
+              if (!resident_name || !contact_info || !document_type || !purpose) {
+                alert("Please fill in all required fields.");
+                return;
+              }
+
               const { data, error } = await supabaseClient
                 .from("Certificates")
                 .insert([

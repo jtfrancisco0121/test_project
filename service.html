@@ -68,7 +68,10 @@
           const supabaseUrl = "https://kviqjumgvdregxqdzpka.supabase.co";
           const supabaseKey =
             "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2aXFqdW1ndmRyZWd4cWR6cGthIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNDc1NDQsImV4cCI6MjA3MjYyMzU0NH0.WXw4cgioSHtz577jcagAGIVa-9Uc6tgPWDKQEvyF2Xs";
-          const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+          const supabaseClient = supabase.createClient(
+            supabaseUrl,
+            supabaseKey
+          );
 
           document
             .querySelector("form")

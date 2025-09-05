@@ -63,7 +63,7 @@
       const supabaseUrl = "https://kviqjumgvdregxqdzpka.supabase.co";
       const supabaseKey =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2aXFqdW1ndmRyZWd4cWR6cGthIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNDc1NDQsImV4cCI6MjA3MjYyMzU0NH0.WXw4cgioSHtz577jcagAGIVa-9Uc6tgPWDKQEvyF2Xs";
-      const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+  const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
       async function loadStatsAndReports() {
         // Fetch counts
@@ -72,17 +72,18 @@
           { count: certificateCount },
           { count: serviceCount },
         ] = await Promise.all([
-          supabase
+          supabaseClient
             .from("IncidentReports")
             .select("*", { count: "exact", head: true }),
-          supabase
+          supabaseClient
             .from("Certificates")
             .select("*", { count: "exact", head: true }),
-          supabase
+          supabaseClient
             .from("ServiceRequests")
             .select("*", { count: "exact", head: true }),
         ]);
-        document.getElementById("incidentCount").textContent = incidentCount || 0;
+        document.getElementById("incidentCount").textContent =
+          incidentCount || 0;
         document.getElementById("certificateCount").textContent =
           certificateCount || 0;
         document.getElementById("serviceCount").textContent = serviceCount || 0;
@@ -91,17 +92,17 @@
 
         // Fetch recent reports (last 5 from each table)
         const [incidents, certificates, services] = await Promise.all([
-          supabase
+          supabaseClient
             .from("IncidentReports")
             .select("*")
             .order("date_time", { ascending: false })
             .limit(5),
-          supabase
+          supabaseClient
             .from("Certificates")
             .select("*")
             .order("request_date", { ascending: false })
             .limit(5),
-          supabase
+          supabaseClient
             .from("ServiceRequests")
             .select("*")
             .order("request_date", { ascending: false })

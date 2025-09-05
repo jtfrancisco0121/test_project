@@ -20,10 +20,18 @@
     </header>
     <main>
       <section class="stats" id="stats">
-        <div class="stat"><span id="incidentCount">0</span><br />New Incident Reports</div>
-        <div class="stat"><span id="certificateCount">0</span><br />Certificates Requested</div>
-        <div class="stat"><span id="serviceCount">0</span><br />Service Requests</div>
-        <div class="stat"><span id="totalCount">0</span><br />Total Processed</div>
+        <div class="stat">
+          <span id="incidentCount">0</span><br />New Incident Reports
+        </div>
+        <div class="stat">
+          <span id="certificateCount">0</span><br />Certificates Requested
+        </div>
+        <div class="stat">
+          <span id="serviceCount">0</span><br />Service Requests
+        </div>
+        <div class="stat">
+          <span id="totalCount">0</span><br />Total Processed
+        </div>
       </section>
       <section>
         <h2>Recent Reports</h2>
@@ -43,51 +51,99 @@
         </table>
       </section>
     </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", function () {
           navigator.serviceWorker.register("service-worker.js");
         });
       }
+
+      const supabaseUrl = "https://kviqjumgvdregxqdzpka.supabase.co";
+      const supabaseKey =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2aXFqdW1ndmRyZWd4cWR6cGthIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNDc1NDQsImV4cCI6MjA3MjYyMzU0NH0.WXw4cgioSHtz577jcagAGIVa-9Uc6tgPWDKQEvyF2Xs";
+      const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+      async function loadStatsAndReports() {
+        // Fetch counts
+        const [
+          { count: incidentCount },
+          { count: certificateCount },
+          { count: serviceCount },
+        ] = await Promise.all([
+          supabase
+            .from("IncidentReports")
+            .select("*", { count: "exact", head: true }),
+          supabase
+            .from("Certificates")
+            .select("*", { count: "exact", head: true }),
+          supabase
+            .from("ServiceRequests")
+            .select("*", { count: "exact", head: true }),
+        ]);
+        document.getElementById("incidentCount").textContent = incidentCount || 0;
+        document.getElementById("certificateCount").textContent =
+          certificateCount || 0;
+        document.getElementById("serviceCount").textContent = serviceCount || 0;
+        document.getElementById("totalCount").textContent =
+          (incidentCount || 0) + (certificateCount || 0) + (serviceCount || 0);
+
+        // Fetch recent reports (last 5 from each table)
+        const [incidents, certificates, services] = await Promise.all([
+          supabase
+            .from("IncidentReports")
+            .select("*")
+            .order("date_time", { ascending: false })
+            .limit(5),
+          supabase
+            .from("Certificates")
+            .select("*")
+            .order("request_date", { ascending: false })
+            .limit(5),
+          supabase
+            .from("ServiceRequests")
+            .select("*")
+            .order("request_date", { ascending: false })
+            .limit(5),
+        ]);
+        const rows = [];
+        if (incidents.data) {
+          incidents.data.forEach((r) =>
+            rows.push(
+              `<tr><td>${r.id}</td><td>${
+                r.resident_name
+              }</td><td>Incident</td><td>${r.status}</td><td>${
+                r.date_time ? r.date_time.split("T")[0] : ""
+              }</td></tr>`
+            )
+          );
+        }
+        if (certificates.data) {
+          certificates.data.forEach((r) =>
+            rows.push(
+              `<tr><td>${r.id}</td><td>${
+                r.resident_name
+              }</td><td>Certificate</td><td>${r.status}</td><td>${
+                r.request_date ? r.request_date.split("T")[0] : ""
+              }</td></tr>`
+            )
+          );
+        }
+        if (services.data) {
+          services.data.forEach((r) =>
+            rows.push(
+              `<tr><td>${r.id}</td><td>${
+                r.resident_name
+              }</td><td>Service</td><td>${r.status}</td><td>${
+                r.request_date ? r.request_date.split("T")[0] : ""
+              }</td></tr>`
+            )
+          );
+        }
+        document.getElementById("recentReports").innerHTML = rows.join("");
+      }
+      window.addEventListener("DOMContentLoaded", loadStatsAndReports);
     </script>
   </body>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
-  <script>
-    const supabaseUrl = "https://kviqjumgvdregxqdzpka.supabase.co";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2aXFqdW1ndmRyZWd4cWR6cGthIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNDc1NDQsImV4cCI6MjA3MjYyMzU0NH0.WXw4cgioSHtz577jcagAGIVa-9Uc6tgPWDKQEvyF2Xs";
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-    async function loadStatsAndReports() {
-      // Fetch counts
-      const [{ count: incidentCount }, { count: certificateCount }, { count: serviceCount }] = await Promise.all([
-        supabase.from('IncidentReports').select('*', { count: 'exact', head: true }),
-        supabase.from('Certificates').select('*', { count: 'exact', head: true }),
-        supabase.from('ServiceRequests').select('*', { count: 'exact', head: true })
-      ]);
-      document.getElementById('incidentCount').textContent = incidentCount || 0;
-      document.getElementById('certificateCount').textContent = certificateCount || 0;
-      document.getElementById('serviceCount').textContent = serviceCount || 0;
-      document.getElementById('totalCount').textContent = (incidentCount || 0) + (certificateCount || 0) + (serviceCount || 0);
-
-      // Fetch recent reports (last 5 from each table)
-      const [incidents, certificates, services] = await Promise.all([
-        supabase.from('IncidentReports').select('*').order('date_time', { ascending: false }).limit(5),
-        supabase.from('Certificates').select('*').order('request_date', { ascending: false }).limit(5),
-        supabase.from('ServiceRequests').select('*').order('request_date', { ascending: false }).limit(5)
-      ]);
-      const rows = [];
-      if (incidents.data) {
-        incidents.data.forEach(r => rows.push(`<tr><td>${r.id}</td><td>${r.resident_name}</td><td>Incident</td><td>${r.status}</td><td>${r.date_time ? r.date_time.split('T')[0] : ''}</td></tr>`));
-      }
-      if (certificates.data) {
-        certificates.data.forEach(r => rows.push(`<tr><td>${r.id}</td><td>${r.resident_name}</td><td>Certificate</td><td>${r.status}</td><td>${r.request_date ? r.request_date.split('T')[0] : ''}</td></tr>`));
-      }
-      if (services.data) {
-        services.data.forEach(r => rows.push(`<tr><td>${r.id}</td><td>${r.resident_name}</td><td>Service</td><td>${r.status}</td><td>${r.request_date ? r.request_date.split('T')[0] : ''}</td></tr>`));
-      }
-      document.getElementById('recentReports').innerHTML = rows.join('');
-    }
-    window.addEventListener('DOMContentLoaded', loadStatsAndReports);
-  </script>
 </html>

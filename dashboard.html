@@ -1,50 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Barangay Service Hub - Dashboard</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#1565c0">
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <header>
-    <h1>Barangay Service Hub - Dashboard</h1>
-    <nav>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="incident.html">Incident Reporting</a>
-      <a href="certificate.html">Certificates</a>
-      <a href="service.html">Service Requests</a>
-    </nav>
-  </header>
-  <main>
-    <section class="stats">
-      <div class="stat"><span>25</span><br>New Incident Reports</div>
-      <div class="stat"><span>40</span><br>Certificates Requested</div>
-      <div class="stat"><span>12</span><br>Service Requests</div>
-      <div class="stat"><span>77</span><br>Total Processed</div>
-    </section>
-    <section>
-      <h2>Recent Reports</h2>
-      <table>
-        <thead>
-          <tr><th>ID</th><th>Resident Name</th><th>Type</th><th>Status</th><th>Date</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>001</td><td>Juan Dela Cruz</td><td>Incident</td><td>Pending</td><td>2025-08-28</td></tr>
-          <tr><td>002</td><td>Maria Santos</td><td>Certificate</td><td>Approved</td><td>2025-08-27</td></tr>
-          <tr><td>003</td><td>Carlos Reyes</td><td>Service</td><td>In Progress</td><td>2025-08-26</td></tr>
-        </tbody>
-      </table>
-    </section>
-  </main>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Barangay Service Hub - Dashboard</title>
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#1565c0" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Barangay Service Hub - Dashboard</h1>
+      <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="incident.html">Incident Reporting</a>
+        <a href="certificate.html">Certificates</a>
+        <a href="service.html">Service Requests</a>
+      </nav>
+    </header>
+    <main>
+      <section class="stats" id="stats">
+        <div class="stat"><span id="incidentCount">0</span><br />New Incident Reports</div>
+        <div class="stat"><span id="certificateCount">0</span><br />Certificates Requested</div>
+        <div class="stat"><span id="serviceCount">0</span><br />Service Requests</div>
+        <div class="stat"><span id="totalCount">0</span><br />Total Processed</div>
+      </section>
+      <section>
+        <h2>Recent Reports</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Resident Name</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="recentReports">
+            <!-- Dynamic rows -->
+          </tbody>
+        </table>
+      </section>
+    </main>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("service-worker.js");
+        });
+      }
+    </script>
+  </body>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('service-worker.js');
-      });
+    const supabaseUrl = "https://kviqjumgvdregxqdzpka.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2aXFqdW1ndmRyZWd4cWR6cGthIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNDc1NDQsImV4cCI6MjA3MjYyMzU0NH0.WXw4cgioSHtz577jcagAGIVa-9Uc6tgPWDKQEvyF2Xs";
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    async function loadStatsAndReports() {
+      // Fetch counts
+      const [{ count: incidentCount }, { count: certificateCount }, { count: serviceCount }] = await Promise.all([
+        supabase.from('IncidentReports').select('*', { count: 'exact', head: true }),
+        supabase.from('Certificates').select('*', { count: 'exact', head: true }),
+        supabase.from('ServiceRequests').select('*', { count: 'exact', head: true })
+      ]);
+      document.getElementById('incidentCount').textContent = incidentCount || 0;
+      document.getElementById('certificateCount').textContent = certificateCount || 0;
+      document.getElementById('serviceCount').textContent = serviceCount || 0;
+      document.getElementById('totalCount').textContent = (incidentCount || 0) + (certificateCount || 0) + (serviceCount || 0);
+
+      // Fetch recent reports (last 5 from each table)
+      const [incidents, certificates, services] = await Promise.all([
+        supabase.from('IncidentReports').select('*').order('date_time', { ascending: false }).limit(5),
+        supabase.from('Certificates').select('*').order('request_date', { ascending: false }).limit(5),
+        supabase.from('ServiceRequests').select('*').order('request_date', { ascending: false }).limit(5)
+      ]);
+      const rows = [];
+      if (incidents.data) {
+        incidents.data.forEach(r => rows.push(`<tr><td>${r.id}</td><td>${r.resident_name}</td><td>Incident</td><td>${r.status}</td><td>${r.date_time ? r.date_time.split('T')[0] : ''}</td></tr>`));
+      }
+      if (certificates.data) {
+        certificates.data.forEach(r => rows.push(`<tr><td>${r.id}</td><td>${r.resident_name}</td><td>Certificate</td><td>${r.status}</td><td>${r.request_date ? r.request_date.split('T')[0] : ''}</td></tr>`));
+      }
+      if (services.data) {
+        services.data.forEach(r => rows.push(`<tr><td>${r.id}</td><td>${r.resident_name}</td><td>Service</td><td>${r.status}</td><td>${r.request_date ? r.request_date.split('T')[0] : ''}</td></tr>`));
+      }
+      document.getElementById('recentReports').innerHTML = rows.join('');
     }
+    window.addEventListener('DOMContentLoaded', loadStatsAndReports);
   </script>
-</body>
 </html>

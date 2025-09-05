@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Incident Reporting</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Barangay Villamor Service Hub</h1>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="incident.html">Incident Reporting</a>
+      <a href="certificate.html">Certificates</a>
+      <a href="service.html">Service Requests</a>
+    </nav>
+  </header>
+  <main>
+    <h2>Incident Reporting</h2>
+    <form>
+      <label>Full Name <input type="text" name="fullname" /></label>
+      <label>Contact Number <input type="text" name="contact" /></label>
+      <label>Incident Type <select name="type"><option>Select type</option></select></label>
+      <label>Date & Time <input type="datetime-local" name="datetime" /></label>
+      <label>Location / Landmark <input type="text" name="location" /></label>
+      <label>Description <textarea name="description" placeholder="Describe what happened"></textarea></label>
+      <label>Attach Photos / Videos <input type="file" name="media" multiple /></label>
+      <label>Reporter Identity <select name="identity"><option>Share name with responders</option></select></label>
+      <div class="form-actions">
+        <button type="reset">Clear</button>
+        <button type="submit">Submit Incident</button>
+      </div>
+    </form>
+    <aside>
+      <h3>Recent Submissions</h3>
+      <ul>
+        <li><span class="status pending"></span> Barangay Clearance (Pending)</li>
+        <li><span class="status progress"></span> Road hazard - Brgy. Hall (In Progress)</li>
+        <li><span class="status scheduled"></span> Senior Aid Request (Scheduled)</li>
+      </ul>
+      <h4>How it works</h4>
+      <ol>
+        <li>Resident submits form</li>
+        <li>Staff receives & assigns</li>
+        <li>Status updated (Pending → In-Progress → Resolved)</li>
+      </ol>
+    </aside>
+  </main>
+</body>
+</html>

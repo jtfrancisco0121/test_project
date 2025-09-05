@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Service Requests</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Barangay Villamor Service Hub</h1>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="incident.html">Incident Reporting</a>
+      <a href="certificate.html">Certificates</a>
+      <a href="service.html">Service Requests</a>
+    </nav>
+  </header>
+  <main>
+    <h2>Service Requests</h2>
+    <form>
+      <label>Resident Name <input type="text" name="fullname" /></label>
+      <label>Contact <input type="text" name="contact" /></label>
+      <label>Service Type <select name="service"><option>Select service</option></select></label>
+      <label>Preferred Schedule <input type="date" name="schedule" /></label>
+      <label>Details / Notes <textarea name="details" placeholder="Additional information or accessibility needs"></textarea></label>
+      <div class="form-actions">
+        <button type="reset">Reset</button>
+        <button type="submit">Request Service</button>
+      </div>
+    </form>
+    <aside>
+      <h3>Recent Submissions</h3>
+      <ul>
+        <li><span class="status pending"></span> Barangay Clearance (Pending)</li>
+        <li><span class="status progress"></span> Road hazard - Brgy. Hall (In Progress)</li>
+        <li><span class="status scheduled"></span> Senior Aid Request (Scheduled)</li>
+      </ul>
+      <h4>How it works</h4>
+      <ol>
+        <li>Resident submits form</li>
+        <li>Staff receives & assigns</li>
+        <li>Status updated (Pending → In-Progress → Resolved)</li>
+      </ol>
+    </aside>
+  </main>
+</body>
+</html>

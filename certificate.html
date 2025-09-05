@@ -67,41 +67,31 @@
       </aside>
       <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
       <script>
-        const supabaseUrl = "https://kviqjumgvdregxqdzpka.supabase.co";
-        const supabaseKey =
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2aXFqdW1ndmRyZWd4cWR6cGthIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNDc1NDQsImV4cCI6MjA3MjYyMzU0NH0.WXw4cgioSHtz577jcagAGIVa-9Uc6tgPWDKQEvyF2Xs";
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        window.addEventListener('DOMContentLoaded', function() {
+          const supabaseUrl = "https://kviqjumgvdregxqdzpka.supabase.co";
+          const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2aXFqdW1ndmRyZWd4cWR6cGthIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNDc1NDQsImV4cCI6MjA3MjYyMzU0NH0.WXw4cgioSHtz577jcagAGIVa-9Uc6tgPWDKQEvyF2Xs";
+          const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        document
-          .querySelector("form")
-          .addEventListener("submit", async function (e) {
+          document.querySelector('form').addEventListener('submit', async function(e) {
             e.preventDefault();
             const form = e.target;
             const resident_name = form.fullname.value;
             const contact_info = form.contact.value;
             const document_type = form.document.value;
             const purpose = form.purpose.value;
-            const status = "Pending";
+            const status = 'Pending';
             const request_date = new Date().toISOString();
             const { data, error } = await supabase
-              .from("Certificates")
-              .insert([
-                {
-                  resident_name,
-                  contact_info,
-                  document_type,
-                  purpose,
-                  status,
-                  request_date,
-                },
-              ]);
+              .from('Certificates')
+              .insert([{ resident_name, contact_info, document_type, purpose, status, request_date }]);
             if (error) {
-              alert("Error submitting: " + error.message);
+              alert('Error submitting: ' + error.message);
             } else {
-              alert("Certificate request submitted successfully!");
+              alert('Certificate request submitted successfully!');
               form.reset();
             }
           });
+        });
       </script>
     </main>
   </body>

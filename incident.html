@@ -74,45 +74,33 @@
           <li>Status updated (Pending → In-Progress → Resolved)</li>
         </ol>
       </aside>
-      <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
-      <script>
-        const supabaseUrl = "https://kviqjumgvdregxqdzpka.supabase.co";
-        const supabaseKey =
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2aXFqdW1ndmRyZWd4cWR6cGthIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNDc1NDQsImV4cCI6MjA3MjYyMzU0NH0.WXw4cgioSHtz577jcagAGIVa-9Uc6tgPWDKQEvyF2Xs";
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+          <script>
+            window.addEventListener('DOMContentLoaded', function() {
+              const supabaseUrl = 'https://kviqjumgvdregxqdzpka.supabase.co';
+              const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2aXFqdW1ndmRyZWd4cWR6cGthIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNDc1NDQsImV4cCI6MjA3MjYyMzU0NH0.WXw4cgioSHtz577jcagAGIVa-9Uc6tgPWDKQEvyF2Xs';
+              const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        document
-          .querySelector("form")
-          .addEventListener("submit", async function (e) {
-            e.preventDefault();
-            const form = e.target;
-            const resident_name = form.fullname.value;
-            const contact_info = form.contact.value;
-            const type = form.type.value;
-            const date_time = form.datetime.value;
-            const location = form.location.value;
-            const description = form.description.value;
-            const status = "Pending";
-            const { data, error } = await supabase
-              .from("IncidentReports")
-              .insert([
-                {
-                  resident_name,
-                  contact_info,
-                  type,
-                  date_time,
-                  location,
-                  description,
-                  status,
-                },
-              ]);
-            if (error) {
-              alert("Error submitting: " + error.message);
-            } else {
-              alert("Incident submitted successfully!");
-              form.reset();
-            }
-          });
+              document.querySelector('form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const form = e.target;
+                const resident_name = form.fullname.value;
+                const contact_info = form.contact.value;
+                const type = form.type.value;
+                const date_time = form.datetime.value;
+                const location = form.location.value;
+                const description = form.description.value;
+                const status = 'Pending';
+                const { data, error } = await supabase
+                  .from('IncidentReports')
+                  .insert([{ resident_name, contact_info, type, date_time, location, description, status }]);
+                if (error) {
+                  alert('Error submitting: ' + error.message);
+                } else {
+                  alert('Incident submitted successfully!');
+                  form.reset();
+                }
+              });
+            });
       </script>
     </main>
   </body>

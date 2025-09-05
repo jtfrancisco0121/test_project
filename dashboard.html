@@ -66,83 +66,107 @@
       const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
       async function loadStatsAndReports() {
-        // Fetch counts
-        const [
-          { count: incidentCount },
-          { count: certificateCount },
-          { count: serviceCount },
-        ] = await Promise.all([
-          supabaseClient
-            .from("IncidentReports")
-            .select("*", { count: "exact", head: true }),
-          supabaseClient
-            .from("Certificates")
-            .select("*", { count: "exact", head: true }),
-          supabaseClient
-            .from("ServiceRequests")
-            .select("*", { count: "exact", head: true }),
-        ]);
-        document.getElementById("incidentCount").textContent =
-          incidentCount || 0;
-        document.getElementById("certificateCount").textContent =
-          certificateCount || 0;
-        document.getElementById("serviceCount").textContent = serviceCount || 0;
-        document.getElementById("totalCount").textContent =
-          (incidentCount || 0) + (certificateCount || 0) + (serviceCount || 0);
+        try {
+          // Fetch counts
+          const [
+            { count: incidentCount },
+            { count: certificateCount },
+            { count: serviceCount },
+          ] = await Promise.all([
+            supabaseClient
+              .from("IncidentReports")
+              .select("*", { count: "exact", head: true }),
+            supabaseClient
+              .from("Certificates")
+              .select("*", { count: "exact", head: true }),
+            supabaseClient
+              .from("ServiceRequests")
+              .select("*", { count: "exact", head: true }),
+          ]);
+          document.getElementById("incidentCount").textContent =
+            incidentCount || 0;
+          document.getElementById("certificateCount").textContent =
+            certificateCount || 0;
+          document.getElementById("serviceCount").textContent = serviceCount || 0;
+          document.getElementById("totalCount").textContent =
+            (incidentCount || 0) + (certificateCount || 0) + (serviceCount || 0);
 
-        // Fetch recent reports (last 5 from each table)
-        const [incidents, certificates, services] = await Promise.all([
-          supabaseClient
-            .from("IncidentReports")
-            .select("*")
-            .order("date_time", { ascending: false })
-            .limit(20),
-          supabaseClient
-            .from("Certificates")
-            .select("*")
-            .order("request_date", { ascending: false })
-            .limit(20),
-          supabaseClient
-            .from("ServiceRequests")
-            .select("*")
-            .order("request_date", { ascending: false })
-            .limit(20),
-        ]);
-        const rows = [];
-        if (incidents.data) {
-          incidents.data.forEach((r) =>
-            rows.push(
-              `<tr><td>${r.id}</td><td>${
-                r.resident_name
-              }</td><td>Incident</td><td>${r.status}</td><td>${
-                r.date_time ? r.date_time.split("T")[0] : ""
-              }</td></tr>`
-            )
-          );
+          // Fetch recent reports (last 20 from each table)
+          const [incidents, certificates, services] = await Promise.all([
+            supabaseClient
+              .from("IncidentReports")
+              .select("*")
+              .order("date_time", { ascending: false })
+              .limit(20),
+            supabaseClient
+              .from("Certificates")
+              .select("*")
+              .order("request_date", { ascending: false })
+              .limit(20),
+            supabaseClient
+              .from("ServiceRequests")
+              .select("*")
+              .order("request_date", { ascending: false })
+              .limit(20),
+          ]);
+
+          // Debug logs
+          console.log("IncidentReports:", incidents);
+          console.log("Certificates:", certificates);
+          console.log("ServiceRequests:", services);
+
+          const rows = [];
+          if (incidents.error) {
+            console.error("IncidentReports fetch error:", incidents.error);
+          }
+          if (certificates.error) {
+            console.error("Certificates fetch error:", certificates.error);
+          }
+          if (services.error) {
+            console.error("ServiceRequests fetch error:", services.error);
+          }
+
+          if (incidents.data && incidents.data.length > 0) {
+            incidents.data.forEach((r) =>
+              rows.push(
+                `<tr><td>${r.id}</td><td>${
+                  r.resident_name
+                }</td><td>Incident</td><td>${r.status}</td><td>${
+                  r.date_time ? r.date_time.split("T")[0] : ""
+                }</td></tr>`
+              )
+            );
+          }
+          if (certificates.data && certificates.data.length > 0) {
+            certificates.data.forEach((r) =>
+              rows.push(
+                `<tr><td>${r.id}</td><td>${
+                  r.resident_name
+                }</td><td>Certificate</td><td>${r.status}</td><td>${
+                  r.request_date ? r.request_date.split("T")[0] : ""
+                }</td></tr>`
+              )
+            );
+          }
+          if (services.data && services.data.length > 0) {
+            services.data.forEach((r) =>
+              rows.push(
+                `<tr><td>${r.id}</td><td>${
+                  r.resident_name
+                }</td><td>Service</td><td>${r.status}</td><td>${
+                  r.request_date ? r.request_date.split("T")[0] : ""
+                }</td></tr>`
+              )
+            );
+          }
+          if (rows.length === 0) {
+            rows.push('<tr><td colspan="5">No records found.</td></tr>');
+          }
+          document.getElementById("recentReports").innerHTML = rows.join("");
+        } catch (err) {
+          console.error("Dashboard error:", err);
+          document.getElementById("recentReports").innerHTML = '<tr><td colspan="5">Error loading data.</td></tr>';
         }
-        if (certificates.data) {
-          certificates.data.forEach((r) =>
-            rows.push(
-              `<tr><td>${r.id}</td><td>${
-                r.resident_name
-              }</td><td>Certificate</td><td>${r.status}</td><td>${
-                r.request_date ? r.request_date.split("T")[0] : ""
-              }</td></tr>`
-            )
-          );
-        }
-        if (services.data) {
-          services.data.forEach((r) =>
-            rows.push(
-              `<tr><td>${r.id}</td><td>${
-                r.resident_name
-              }</td><td>Service</td><td>${r.status}</td><td>${
-                r.request_date ? r.request_date.split("T")[0] : ""
-              }</td></tr>`
-            )
-          );
-        }
-        document.getElementById("recentReports").innerHTML = rows.join("");
       }
       window.addEventListener("DOMContentLoaded", loadStatsAndReports);
     </script>

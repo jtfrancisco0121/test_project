@@ -24,7 +24,11 @@
         <label
           >Document Type
           <select name="document">
-            <option>Select document</option>
+            <option value="" disabled selected>Select document</option>
+            <option value="Barangay Clearance">Barangay Clearance</option>
+            <option value="Indigency">Indigency</option>
+            <option value="Residency">Residency</option>
+            <option value="Other">Other</option>
           </select></label
         >
         <label
@@ -91,6 +95,10 @@
               // Basic validation
               if (!resident_name || !contact_info || !document_type || !purpose) {
                 alert("Please fill in all required fields.");
+                return;
+              }
+              if (document_type === "") {
+                alert("Please select a valid document type.");
                 return;
               }
 
